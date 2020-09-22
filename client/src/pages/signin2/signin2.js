@@ -3,7 +3,6 @@ import styled, { css } from "styled-components";
 import Button from "../../components/button/button";
 import logo from "../../assets/img/log.svg";
 import register from "../../assets/img/register.svg";
-import "./signin2.css";
 
 const Container = styled.div`
   position: relative;
