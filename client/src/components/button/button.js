@@ -44,10 +44,10 @@ const Button = styled.button`
   ${(props) => {
     return props.show
       ? css`
-          background: #333;
-          width: 20%;
+          /* background: none; */
+          border: 6px solid #fff;
+          border-radius: 25px;
           padding: 4px;
-          margin-bottom: 8px;
           margin-left: 4px;
           color: #fff;
         `
@@ -69,6 +69,22 @@ const Button = styled.button`
             background: #333;
             color: #fff;
           }
+        `
+      : null;
+  }}
+
+
+
+${(props) => {
+    return props.panel
+      ? css`
+          margin: 0;
+          background: none;
+          border: 2px solid #fff;
+          width: 130px;
+          height: 41px;
+          font-weight: 600;
+          font-size: 0.8rem;
         `
       : null;
   }}

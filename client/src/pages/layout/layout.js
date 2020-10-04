@@ -1,16 +1,17 @@
 import React from "react";
 import styled from "styled-components";
-import Header from "../header/header";
+import Nav from "../header/header2";
 
-const LayoutWrapper = styled.main`
-  /* margin-top: 40px; */
+const Main = styled.main`
+  margin-left: 5rem;
+  padding: 1rem;
 `;
 
 const Layout = ({ children }) => {
   return (
     <>
-      <Header />
-      <LayoutWrapper>{children}</LayoutWrapper>;
+      <Nav />
+      <Main>{children}</Main>;
     </>
   );
 };

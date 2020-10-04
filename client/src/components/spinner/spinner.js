@@ -12,9 +12,9 @@ const rotation = keyframes`
 
 `;
 const Spinner = styled.div`
-  height: 30px;
-  width: 30px;
-  border: 1px solid #f6849c;
+  height: 100px;
+  width: 100px;
+  border: 8px solid #f6849c;
   border-radius: 50%;
   border-top: none;
   border-right: none;

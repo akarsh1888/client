@@ -1,8 +1,13 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import styled, { css } from "styled-components";
 import Button from "../../components/button/button";
 import logo from "../../assets/img/log.svg";
 import register from "../../assets/img/register.svg";
+import InputField from "../../components/sign-input/sign-input";
+import Spinner from "../../components/spinner/spinner";
+import SignUp2 from "./signup2";
+import { useDispatch, useSelector } from "react-redux";
+import { loginUser } from "../../redux/user/user.actions";
 
 const Container = styled.div`
   position: relative;
@@ -25,20 +30,142 @@ const Container = styled.div`
     background-image: linear-gradient(-45deg, #4481eb 0%, #04befe 100%);
   }
 
+  ${(props) => {
+    return props.toggle
+      ? css`
+          &:before {
+            transform: translate(100%, -50%);
+            right: 52%;
+          }
+        `
+      : null;
+  }}
+`;
+const FormsContainer = styled.div`
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+`;
+const SignInSignUp = styled.div`
+  position: absolute;
+  top: 50%;
+  left: 75%;
+  width: 50%;
+  z-index: 5;
+  display: grid;
+  grid-template-columns: 1fr;
+  transform: translate(-50%, -50%);
+  transition: 1s 0.7s ease-in-out;
+
+  .sign-in-form {
+    z-index: 2;
+  }
+
+  .sign-up-form {
+    z-index: 1;
+    opacity: 0;
+  }
+
+  form {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 0rem 5rem;
+    grid-column: 1 / 2;
+    grid-row: 1 / 2;
+    overflow: hidden;
+    transition: all 0.2s 0.7s;
+
+    h2 {
+      color: #444;
+      font-size: 2.2rem;
+      margin-bottom: 10px;
+    }
+
+    .show-passwrd {
+      width: 380px;
+      text-align: left;
+      font-size: 1.3rem;
+    }
+
+    p {
+      padding: 0.7rem 0;
+      font-size: 1rem;
+    }
+
+    .social-media {
+      display: flex;
+      justify-content: center;
+
+      a {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 46px;
+        width: 46px;
+        border-radius: 50%;
+        border: 1px solid #333;
+        color: #333;
+        font-size: 1.1rem;
+        text-decoration: none;
+        margin: 0 0.45rem;
+        transition: 0.3s;
+
+        &:hover {
+          color: #4481eb;
+          border-color: #4481eb;
+        }
+      }
+    }
+  }
+
+  /* Form tag end */
+
+  ${(props) => {
+    return props.toggle
+      ? css`
+          left: 25%;
+
+          .sign-up-form {
+            opacity: 1;
+            z-index: 2;
+          }
+
+          .sign-in-form {
+            opacity: 0;
+            z-index: 1;
+          }
+        `
+      : null;
+  }}/* End of SignInSignUp Div  */
+`;
+
+const PanelContainer = styled.div`
+  position: absolute;
+  height: 100%;
+  width: 100%;
+  top: 0;
+  left: 0;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+
   img {
     width: 100%;
     transition: transform 1.1s ease-in-out;
     transition-delay: 0.4s;
   }
 
-  .panels-container {
-    position: absolute;
-    height: 100%;
-    width: 100%;
-    top: 0;
-    left: 0;
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
+  .left-panel {
+    pointer-events: all;
+    padding: 2rem 17% 2rem 12%;
+  }
+
+  .right-panel {
+    pointer-events: none;
+    padding: 2rem 12% 2rem 17%;
   }
 
   .panel {
@@ -48,15 +175,6 @@ const Container = styled.div`
     /* justify-content: space-around; */
     text-align: center;
     z-index: 7;
-  }
-  .left-panel {
-    pointer-events: all;
-    padding: 3rem 17% 2rem 12%;
-  }
-
-  .right-panel {
-    pointer-events: none;
-    padding: 3rem 12% 2rem 17%;
   }
 
   .panel .content {
@@ -76,16 +194,6 @@ const Container = styled.div`
     padding: 0.7rem 0;
   }
 
-  .btn.transparent {
-    margin: 0;
-    background: none;
-    border: 2px solid #fff;
-    width: 130px;
-    height: 41px;
-    font-weight: 600;
-    font-size: 0.8rem;
-  }
-
   .right-panel .image,
   .right-panel .content {
     transform: translateX(800px);
@@ -94,33 +202,14 @@ const Container = styled.div`
   ${(props) => {
     return props.toggle
       ? css`
-          &:before {
-            transform: translate(100%, -50%);
-            right: 52%;
+          .right-panel .image,
+          .right-panel .content {
+            transform: translateX(0%);
           }
 
           .left-panel .image,
           .left-panel .content {
             transform: translateX(-800px);
-          }
-
-          .signin-signup {
-            left: 25%;
-          }
-
-          form.sign-up-form {
-            opacity: 1;
-            z-index: 2;
-          }
-
-          form.sign-in-form {
-            opacity: 0;
-            z-index: 1;
-          }
-
-          .right-panel .image,
-          .right-panel .content {
-            transform: translateX(0%);
           }
 
           .left-panel {
@@ -134,241 +223,138 @@ const Container = styled.div`
       : null;
   }}
 `;
-const FormsContainer = styled.div`
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  top: 0;
-  left: 0;
-`;
-const SignInSignUp = styled.div`
-  transform: translate(-50%, -50%);
-  transition: 1s 0.7s ease-in-out;
-  position: absolute;
-  top: 50%;
-  left: 75%;
-  width: 50%;
-  display: grid;
-  grid-template-columns: 1fr;
-  z-index: 5;
 
-  .sign-in-form {
-    z-index: 2;
-  }
+let timeout;
 
-  .sign-up-form {
-    opacity: 0;
-    z-index: 1;
-  }
-
-  form {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    padding: 0rem 5rem;
-    overflow: hidden;
-    grid-column: 1 / 2;
-    grid-row: 1 / 2;
-    transition: all 0.2s 0.7s;
-
-    h2 {
-      font-size: 2.2rem;
-      color: #444;
-      margin-bottom: 10px;
-    }
-
-    .input-field {
-      max-width: 380px;
-      width: 100%;
-      height: 55px;
-      background-color: #f0f0f0;
-      margin: 10px 0;
-      border-radius: 55px;
-      display: grid;
-      grid-template-columns: 15% 85%;
-      padding: 0 0.4rem;
-      position: relative;
-
-      i {
-        text-align: center;
-        line-height: 55px;
-        color: #acacac;
-        transition: 0.5s;
-        font-size: 1.1rem;
-      }
-
-      input {
-        background: none;
-        outline: none;
-        border: none;
-        line-height: 1;
-        font-weight: 600;
-        font-size: 1.1rem;
-        color: #333;
-
-        input::placeholder {
-          color: #aaa;
-          font-weight: 500;
-        }
-      }
-    }
-
-    p {
-      padding: 0.7rem 0;
-      font-size: 1rem;
-    }
-
-    .social-media {
-      display: flex;
-      justify-content: center;
-
-      a {
-        height: 46px;
-        width: 46px;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        margin: 0 0.45rem;
-        color: #333;
-        border-radius: 50%;
-        border: 1px solid #333;
-        text-decoration: none;
-        font-size: 1.1rem;
-        transition: 0.3s;
-
-        &:hover {
-          color: #4481eb;
-          border-color: #4481eb;
-        }
-      }
-    }
-  }
-
-  ${(props) => {
-    return props.toggle
-      ? css`
-          left: 25%;
-
-          .sign-up-form {
-            opacity: 1;
-            z-index: 2;
-          }
-
-          .sign-in-form {
-            opacity: 0;
-            z-index: 1;
-          }
-        `
-      : null;
-  }}
-`;
-
-const SignIn2 = () => {
+const SignIn2 = ({ history }) => {
   const [toggle, setToggle] = useState(false);
+  const [show, setShow] = useState(true);
+  const [field, setFields] = useState({ email: "", password: "" });
+  const { email, password } = field;
+
+  const { currentUser, isAuthenticated, loading } = useSelector(
+    (state) => state.user
+  );
+
+  const dispatch = useDispatch();
+
+  const handleChange = (e) => {
+    e.persist();
+    const { value, name } = e.target;
+
+    setFields((e) => ({ ...field, [name]: value }));
+  };
+
+  useEffect(() => {
+    if (isAuthenticated) history.push("/");
+  }, [isAuthenticated]);
+
+  const handleLogin = (e) => {
+    e.preventDefault();
+
+    const userData = {
+      user: {
+        email: field.email,
+        password: field.password,
+      },
+    };
+    dispatch(loginUser(userData));
+  };
   return (
     <Container toggle={toggle}>
       <FormsContainer>
         <SignInSignUp toggle={toggle}>
-          <form action="" className="sign-in-form">
+          <form onSubmit={handleLogin} className="sign-in-form">
             <h2 className="title">Sign in</h2>
-            <div className="input-field">
-              <i className="fas fa-user"></i>
-              <input type="text" placeholder="Username" />
-            </div>
-            <div className="input-field">
-              <i className="fas fa-lock"></i>
-              <input type="password" placeholder="Password" />
-            </div>
-            <Button type="submit" sign>
-              Login
+
+            {loading ? (
+              <Spinner />
+            ) : (
+              <>
+                <InputField>
+                  <i className="fas fa-user" />
+                  <input
+                    type="email"
+                    placeholder="Your Email"
+                    name="email"
+                    value={email}
+                    onChange={handleChange}
+                  />
+                </InputField>
+                <InputField>
+                  <i className="fas fa-lock" />
+                  <input
+                    name="password"
+                    type={!show ? "password" : "text"}
+                    placeholder="Password"
+                    value={password}
+                    onChange={handleChange}
+                  />
+
+                  <Button
+                    show
+                    onClick={(e) => {
+                      e.preventDefault();
+                      setShow((t) => !t);
+                    }}
+                  >
+                    {show ? "Hide" : "Show"}
+                  </Button>
+                </InputField>
+              </>
+            )}
+            <Button type="submit" disabled={loading} sign>
+              {loading ? "Loading..." : "Log In"}
             </Button>
+
             <p className="social-text">Or Sign in with social platforms</p>
             <div className="social-media">
               <a href="#" className="social-icon">
-                <i className="fab fa-facebook-f"></i>
+                <i className="fab fa-facebook-f" />
               </a>
               <a href="#" className="social-icon">
-                <i className="fab fa-twitter"></i>
+                <i className="fab fa-twitter" />
               </a>
               <a href="#" className="social-icon">
-                <i className="fab fa-google"></i>
+                <i className="fab fa-google" />
               </a>
               <a href="#" className="social-icon">
-                <i className="fab fa-linkedin-in"></i>
+                <i className="fab fa-linkedin-in" />
               </a>
             </div>
           </form>
-          <form action="#" className="sign-up-form">
-            <h2 className="title">Sign up</h2>
-            <div className="input-field">
-              <i className="fas fa-user"></i>
-              <input type="text" placeholder="Username" />
-            </div>
-            <div className="input-field">
-              <i className="fas fa-envelope"></i>
-              <input type="email" placeholder="Email" />
-            </div>
-            <div className="input-field">
-              <i className="fas fa-lock"></i>
-              <input type="password" placeholder="Password" />
-            </div>
-            <Button type="submit" sign>
-              Sign Up
-            </Button>
-            <p className="social-text">Or Sign up with social platforms</p>
-            <div className="social-media">
-              <a href="#" className="social-icon">
-                <i className="fab fa-facebook-f"></i>
-              </a>
-              <a href="#" className="social-icon">
-                <i className="fab fa-twitter"></i>
-              </a>
-              <a href="#" className="social-icon">
-                <i className="fab fa-google"></i>
-              </a>
-              <a href="#" className="social-icon">
-                <i className="fab fa-linkedin-in"></i>
-              </a>
-            </div>
-          </form>{" "}
+          <SignUp2 />
         </SignInSignUp>
       </FormsContainer>
 
-      <div class="panels-container">
+      <PanelContainer toggle={toggle}>
         <div className="panel left-panel">
-          <div class="content">
+          <div className="content">
             <h3>New here ?</h3>
             <p>
               Lorem ipsum, dolor sit amet consectetur adipisicing elit. Debitis,
               ex ratione. Aliquid!
             </p>
-            <Button
-              class="btn transparent"
-              onClick={() => setToggle((t) => !t)}
-            >
+            <Button panel onClick={() => setToggle((t) => !t)}>
               Sign up
             </Button>
           </div>
-          <img src={logo} class="image" alt="" />
+          <img src={logo} className="image" alt="" />
         </div>
         <div className="panel right-panel">
-          <div class="content">
+          <div className="content">
             <h3>One of us ?</h3>
             <p>
               Lorem ipsum dolor sit amet consectetur adipisicing elit. Nostrum
               laboriosam ad deleniti.
             </p>
-            <Button
-              class="btn transparent"
-              onClick={() => setToggle((t) => !t)}
-            >
+            <Button panel onClick={() => setToggle((t) => !t)}>
               Sign In
             </Button>
           </div>
-          <img src={register} class="image" alt="" />
+          <img src={register} className="image" alt="" />
         </div>
-      </div>
+      </PanelContainer>
     </Container>
   );
 };

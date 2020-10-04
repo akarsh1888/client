@@ -11,7 +11,7 @@ export default function () {
   return (
     <>
       <Layout>
-        {/* <div className="joinOuterContainer">
+        <div className="joinOuterContainer">
           <div className="joinInnerContainer">
             <h1 className="heading">Join</h1>
             <div>
@@ -37,7 +37,7 @@ export default function () {
               <Button type="submit">SignIn</Button>
             </Link>
           </div>
-        </div> */}
+        </div>
       </Layout>
     </>
   );
