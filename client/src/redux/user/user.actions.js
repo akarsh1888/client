@@ -8,6 +8,7 @@ import { toast } from "react-toastify";
 export const signupUser = (userData) => {
   return async (dispatch) => {
     try {
+      console.log(userData);
       const res = await axios.post(`${baseUrlAuth}/signup`, userData);
       console.log(res.data);
       if (res.data.status === "ok") {
